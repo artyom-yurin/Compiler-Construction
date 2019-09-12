@@ -15,6 +15,7 @@ extern|operator|template|wchar_t|const|false|private|this|while|constexpr|float|
 
 ::|\.(\*)?|->(\*)?|\[|\]|\(|\)|\+(\+)?|\-(\-)?|typeid|const_cast|dynamic_cast|reinterpret_cast|static_cast|sizeof|new|delete|throw|%|<(<)?(=)?|>(>)?(=)?|(=|!|\-|\+|&|\||\^)?=|\^|\|(\|)?|\?|:|~|!|\/|&|\*|, {printf("operator %s\n", yytext);}
 ;|:|\{|\}|\\|#|\"|\' {printf("punctuator %s\n", yytext);}
+[\n\t ' '] {};
 %%
 
 int main( int argc , char** argv)
