@@ -12,6 +12,9 @@ extern|operator|template|wchar_t|const|false|private|this|while|constexpr|float|
 (([1-9][0-9]*)|(0[0-7]*)|(((0x)|(0X))[0-9a-fA-F]+)|((((0b)|(0B))[0-1]+)))(((u|U)((ll)|(LL)|(l)|(L))?)|(((ll)|(LL)|(l)|(L))(u|U)?))? {printf("integer-literal %s\n", yytext);}
 
 ([A-Za-z_]([A-Za-z_]|[0-9])*)|(override)|(final) {printf("identifier %s\n", yytext);}
+
+::|\.(\*)?|->(\*)?|\[|\]|\(|\)|\+(\+)?|\-(\-)?|typeid|const_cast|dynamic_cast|reinterpret_cast|static_cast|sizeof|new|delete|throw|%|<(<)?(=)?|>(>)?(=)?|(=|!|\-|\+|&|\||\^)?=|\^|\|(\|)?|\?|:|~|!|\/|&|\*|, {printf("operator %s\n", yytext);}
+;|:|\{|\}|\\|#|\"|\' {printf("punctuator %s\n", yytext);}
 %%
 
 int main( int argc , char** argv)
