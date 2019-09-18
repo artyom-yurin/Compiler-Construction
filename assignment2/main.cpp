@@ -20,18 +20,33 @@ class Relation : public Binary {
 };
 
 class Less : public Relation {
+public:
+  Less(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right) {
+    this->left = std::move(left);
+    this->right = std::move(right);
+  };
   std::string toString() override {
     return left->toString() + " < " + right->toString();
   }
 };
 
 class More : public Relation {
+public:
+  More(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right) {
+    this->left = std::move(left);
+    this->right = std::move(right);
+  };
   std::string toString() override {
     return left->toString() + " > " + right->toString();
   }
 };
 
 class Equal : public Relation {
+public:
+  Equal(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right) {
+    this->left = std::move(left);
+    this->right = std::move(right);
+  };
   std::string toString() override {
     return left->toString() + " = " + right->toString();
   }
@@ -114,8 +129,19 @@ private:
 
   static std::unique_ptr<Expression> parseRelation(std::string &str) {
     std::unique_ptr<Expression> result = parseTerm(str);
-    // op
-    // another one Term
+    if (!str.empty()) {
+      char ch = str[0];
+      if (ch == '<') {
+        str.erase(0, 1);
+        result = std::make_unique<Less>(std::move(result), parseTerm(str));
+      } else if (ch == '>') {
+        str.erase(0, 1);
+        result = std::make_unique<More>(std::move(result), parseTerm(str));
+      } else if (ch == '=') {
+        str.erase(0, 1);
+        result = std::make_unique<Equal>(std::move(result), parseTerm(str));
+      }
+    }
     return result;
   }
 
