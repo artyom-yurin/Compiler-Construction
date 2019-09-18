@@ -220,6 +220,7 @@ private:
       str.erase(0, i + 1);
       return std::make_unique<Parenthesized>(parseRelation(expression));
     }
+    return nullptr;
   }
 };
 
