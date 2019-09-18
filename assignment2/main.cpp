@@ -54,6 +54,11 @@ class Minus : public Term {
 };
 
 class Mult : public Term {
+public:
+  Mult(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right){
+    this->left = std::move(left);
+    this->right = std::move(right);
+  };
   std::string toString() override {
     return left->toString() + " * " + right->toString();
   }
@@ -98,14 +103,39 @@ private:
   }
 
   static std::unique_ptr<Expression> parseRelation(std::string &str) {
-    std::unique_ptr<Expression> left = parseTerm(str);
-    // while true
+    std::unique_ptr<Expression> result = parseTerm(str);
     // op
     // another one Term
-    return std::make_unique<Relation>();
+    return result;
   }
 
-  static std::unique_ptr<Expression> parseTerm(std::string &str) {
+  static std::unique_ptr<Expression> parseTerm(std::string &str){
+    std::unique_ptr<Expression> result = parseFactor(str);
+    // while true
+    // op
+    // anotherFactor
+    return result;
+  };
+
+  static std::unique_ptr<Expression> parseFactor(std::string &str){
+    std::unique_ptr<Expression> result = parsePrimary(str);
+    while(!str.empty())
+    {
+      char ch = str[0];
+      if (ch == '*')
+      {
+        str.erase(0, 1);
+        result = std::make_unique<Mult>(std::move(result), parsePrimary(str));
+      }
+      else
+      {
+        break;
+      }
+    }
+    return result;
+  };
+
+  static std::unique_ptr<Expression> parsePrimary(std::string &str) {
     int i = 0;
     if (str.size() == i) {
       return nullptr;
