@@ -42,12 +42,22 @@ class Term : public Binary {
 };
 
 class Plus : public Term {
+public:
+  Plus(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right) {
+    this->left = std::move(left);
+    this->right = std::move(right);
+  };
   std::string toString() override {
     return left->toString() + " + " + right->toString();
   }
 };
 
 class Minus : public Term {
+public:
+  Minus(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right) {
+    this->left = std::move(left);
+    this->right = std::move(right);
+  };
   std::string toString() override {
     return left->toString() + " - " + right->toString();
   }
@@ -55,7 +65,7 @@ class Minus : public Term {
 
 class Mult : public Term {
 public:
-  Mult(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right){
+  Mult(std::unique_ptr<Expression> left, std::unique_ptr<Expression> right) {
     this->left = std::move(left);
     this->right = std::move(right);
   };
@@ -109,26 +119,31 @@ private:
     return result;
   }
 
-  static std::unique_ptr<Expression> parseTerm(std::string &str){
+  static std::unique_ptr<Expression> parseTerm(std::string &str) {
     std::unique_ptr<Expression> result = parseFactor(str);
-    // while true
-    // op
-    // anotherFactor
+    while (!str.empty()) {
+      char ch = str[0];
+      if (ch == '+') {
+        str.erase(0, 1);
+        result = std::make_unique<Plus>(std::move(result), parseFactor(str));
+      } else if (ch == '-') {
+        str.erase(0, 1);
+        result = std::make_unique<Minus>(std::move(result), parseFactor(str));
+      } else {
+        break;
+      }
+    }
     return result;
   };
 
-  static std::unique_ptr<Expression> parseFactor(std::string &str){
+  static std::unique_ptr<Expression> parseFactor(std::string &str) {
     std::unique_ptr<Expression> result = parsePrimary(str);
-    while(!str.empty())
-    {
+    while (!str.empty()) {
       char ch = str[0];
-      if (ch == '*')
-      {
+      if (ch == '*') {
         str.erase(0, 1);
         result = std::make_unique<Mult>(std::move(result), parsePrimary(str));
-      }
-      else
-      {
+      } else {
         break;
       }
     }
