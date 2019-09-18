@@ -1,2 +1,4 @@
 assignment1/lex.yy.c
 assignment1/a.out
+assignment2/.idea/*
+assignment2/cmake-build-debug/*
