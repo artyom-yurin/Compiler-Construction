@@ -9,6 +9,7 @@ public:
 
 class Binary : public Expression {
   std::string toString() { return "Binary"; };
+
 protected:
   std::unique_ptr<Expression> left;
   std::unique_ptr<Expression> right;
@@ -101,18 +102,22 @@ private:
 
   static std::unique_ptr<Expression> parseTerm(std::string &str) {
     int i = 0;
+    if (str.size() == i) {
+      return nullptr;
+    }
     char ch = str[i];
-    i++;
     if ('0' <= ch && ch <= '9') {
-      int integer = (ch - '0');
-      ch = str[i];
-      while ('0' <= ch && ch <= '9') {
+      int integer = 0;
+      while ('0' <= ch && ch <= '9' && i < str.size()) {
         integer *= 10;
         integer += (ch - '0');
         i++;
-        ch = str[i];
+        if(i < str.size())
+        {
+          ch = str[i];
+        }
       }
-      str.erase(0,i);
+      str.erase(0, i);
       return std::make_unique<Integer>(integer);
     } else if ('(' == ch) {
       // find )
