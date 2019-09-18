@@ -70,8 +70,13 @@ public:
 };
 
 class Parenthesized : public Primary {
-  std::unique_ptr<Expression> expression;
+public:
+  Parenthesized(std::unique_ptr<Expression> expression)
+      : expression(std::move(expression)) {}
   std::string toString() override { return "(" + expression->toString() + ")"; }
+
+private:
+  std::unique_ptr<Expression> expression;
 };
 
 class Parser {
@@ -112,15 +117,37 @@ private:
         integer *= 10;
         integer += (ch - '0');
         i++;
-        if(i < str.size())
-        {
+        if (i < str.size()) {
           ch = str[i];
         }
       }
       str.erase(0, i);
       return std::make_unique<Integer>(integer);
     } else if ('(' == ch) {
-      // find )
+      int brackets_counter = 1;
+      std::string expression;
+      while (i < str.size() && brackets_counter != 0) {
+        i++;
+        if (i < str.size()) {
+          ch = str[i];
+          if (ch == '(') {
+            brackets_counter++;
+            expression.push_back(ch);
+          } else if (ch == ')') {
+            brackets_counter--;
+            if (brackets_counter != 0) {
+              expression.push_back(ch);
+            }
+          } else {
+            expression.push_back(ch);
+          }
+        }
+      }
+      if (brackets_counter != 0) {
+        return nullptr;
+      }
+      str.erase(0, i + 1);
+      return std::make_unique<Parenthesized>(parseRelation(expression));
     }
   }
 };
