@@ -4,6 +4,7 @@
 class Expression {
 public:
   virtual std::string toString() { return "expression"; };
+  virtual int calculate() { return 0; };
   virtual ~Expression() = default;
 };
 
@@ -25,6 +26,9 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
+  int calculate() override {
+    return left->calculate() < right->calculate() ? 1 : 0;
+  }
   std::string toString() override {
     return left->toString() + " < " + right->toString();
   }
@@ -36,6 +40,9 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
+  int calculate() override {
+    return left->calculate() > right->calculate() ? 1 : 0;
+  }
   std::string toString() override {
     return left->toString() + " > " + right->toString();
   }
@@ -47,6 +54,9 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
+  int calculate() override {
+    return left->calculate() == right->calculate() ? 1 : 0;
+  }
   std::string toString() override {
     return left->toString() + " = " + right->toString();
   }
@@ -62,6 +72,9 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
+  int calculate() override {
+    return left->calculate() + right->calculate();
+  }
   std::string toString() override {
     return left->toString() + " + " + right->toString();
   }
@@ -73,6 +86,9 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
+  int calculate() override {
+    return left->calculate() - right->calculate();
+  }
   std::string toString() override {
     return left->toString() + " - " + right->toString();
   }
@@ -84,6 +100,9 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
+  int calculate() override {
+    return left->calculate() * right->calculate();
+  }
   std::string toString() override {
     return left->toString() + " * " + right->toString();
   }
@@ -96,6 +115,9 @@ class Integer : public Primary {
   std::string toString() override { return std::to_string(value); }
 
 public:
+  int calculate() override {
+    return value;
+  }
   Integer(int value) : value(value){};
 };
 
@@ -103,6 +125,9 @@ class Parenthesized : public Primary {
 public:
   Parenthesized(std::unique_ptr<Expression> expression)
       : expression(std::move(expression)) {}
+  int calculate() override {
+    return expression->calculate();
+  }
   std::string toString() override { return "(" + expression->toString() + ")"; }
 
 private:
@@ -228,7 +253,8 @@ int main() {
   std::string input;
   std::getline(std::cin, input);
   std::unique_ptr<Expression> expressionTree = Parser::parse(input);
-  std::cout << expressionTree->toString() << std::endl;
-  // int result = expressionTree.calculate();
+  std::cout << "Expression: " << expressionTree->toString() << std::endl;
+  int result = expressionTree->calculate();
+  std::cout << "Result: " << result << std::endl;
   return 0;
 }
