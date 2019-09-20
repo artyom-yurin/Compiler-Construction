@@ -72,9 +72,7 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
-  int calculate() override {
-    return left->calculate() + right->calculate();
-  }
+  int calculate() override { return left->calculate() + right->calculate(); }
   std::string toString() override {
     return left->toString() + " + " + right->toString();
   }
@@ -86,9 +84,7 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
-  int calculate() override {
-    return left->calculate() - right->calculate();
-  }
+  int calculate() override { return left->calculate() - right->calculate(); }
   std::string toString() override {
     return left->toString() + " - " + right->toString();
   }
@@ -100,9 +96,7 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
-  int calculate() override {
-    return left->calculate() * right->calculate();
-  }
+  int calculate() override { return left->calculate() * right->calculate(); }
   std::string toString() override {
     return left->toString() + " * " + right->toString();
   }
@@ -115,9 +109,7 @@ class Integer : public Primary {
   std::string toString() override { return std::to_string(value); }
 
 public:
-  int calculate() override {
-    return value;
-  }
+  int calculate() override { return value; }
   Integer(int value) : value(value){};
 };
 
@@ -125,9 +117,7 @@ class Parenthesized : public Primary {
 public:
   Parenthesized(std::unique_ptr<Expression> expression)
       : expression(std::move(expression)) {}
-  int calculate() override {
-    return expression->calculate();
-  }
+  int calculate() override { return expression->calculate(); }
   std::string toString() override { return "(" + expression->toString() + ")"; }
 
 private:
@@ -207,7 +197,13 @@ private:
       return nullptr;
     }
     char ch = str[i];
-    if ('0' <= ch && ch <= '9') {
+    if (ch == '-' || ('0' <= ch && ch <= '9')) {
+      bool isNegative = false;
+      if (ch == '-') {
+        isNegative = true;
+        i++;
+        ch = str[i];
+      }
       int integer = 0;
       while ('0' <= ch && ch <= '9' && i < str.size()) {
         integer *= 10;
@@ -218,6 +214,14 @@ private:
         }
       }
       str.erase(0, i);
+      if (isNegative) {
+        if (i == 1) {
+          return nullptr;
+        }
+        integer *= -1;
+      } else if (i == 0) {
+        return nullptr;
+      }
       return std::make_unique<Integer>(integer);
     } else if ('(' == ch) {
       int brackets_counter = 1;
