@@ -27,10 +27,24 @@ public:
     this->right = std::move(right);
   };
   int calculate() override {
-    return left->calculate() < right->calculate() ? 1 : 0;
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Relation|Less: one of argument is not provided");
+    }
+    try {
+      return left->calculate() < right->calculate() ? 1 : 0;
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
   }
   std::string toString() override {
-    return left->toString() + " < " + right->toString();
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Relation|Less: one of argument is not provided");
+    }
+    try {
+      return left->toString() + " < " + right->toString();
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
   }
 };
 
@@ -41,10 +55,24 @@ public:
     this->right = std::move(right);
   };
   int calculate() override {
-    return left->calculate() > right->calculate() ? 1 : 0;
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Relation|More: one of argument is not provided");
+    }
+    try {
+      return left->calculate() > right->calculate() ? 1 : 0;
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
   }
   std::string toString() override {
-    return left->toString() + " > " + right->toString();
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Relation|More: one of argument is not provided");
+    }
+    try {
+      return left->toString() + " > " + right->toString();
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
   }
 };
 
@@ -55,10 +83,24 @@ public:
     this->right = std::move(right);
   };
   int calculate() override {
-    return left->calculate() == right->calculate() ? 1 : 0;
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Relation|Equal: one of argument is not provided");
+    }
+    try {
+      return left->calculate() == right->calculate() ? 1 : 0;
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
   }
   std::string toString() override {
-    return left->toString() + " = " + right->toString();
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Relation|Equal: one of argument is not provided");
+    }
+    try {
+      return left->toString() + " = " + right->toString();
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
   }
 };
 
@@ -72,9 +114,25 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
-  int calculate() override { return left->calculate() + right->calculate(); }
+  int calculate() override {
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Term|Plus: one of argument is not provided");
+    }
+    try {
+      return left->calculate() + right->calculate();
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
+  }
   std::string toString() override {
-    return left->toString() + " + " + right->toString();
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Term|Plus: one of argument is not provided");
+    }
+    try {
+      return left->toString() + " + " + right->toString();
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
   }
 };
 
@@ -84,9 +142,25 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
-  int calculate() override { return left->calculate() - right->calculate(); }
+  int calculate() override {
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Term|Minus: one of argument is not provided");
+    }
+    try {
+      return left->calculate() - right->calculate();
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
+  }
   std::string toString() override {
-    return left->toString() + " - " + right->toString();
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Term|Minus: one of argument is not provided");
+    }
+    try {
+      return left->toString() + " - " + right->toString();
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
   }
 };
 
@@ -96,9 +170,25 @@ public:
     this->left = std::move(left);
     this->right = std::move(right);
   };
-  int calculate() override { return left->calculate() * right->calculate(); }
+  int calculate() override {
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Term|Multiplication: one of argument is not provided");
+    }
+    try {
+      return left->calculate() * right->calculate();
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
+  }
   std::string toString() override {
-    return left->toString() + " * " + right->toString();
+    if (left == nullptr || right == nullptr) {
+      throw std::runtime_error("Term|Multiplication: one of argument is not provided");
+    }
+    try {
+      return left->toString() + " * " + right->toString();
+    } catch (const std::runtime_error &e) {
+      throw;
+    }
   }
 };
 
@@ -128,7 +218,11 @@ class Parser {
 public:
   static std::unique_ptr<Expression> parse(const std::string &input) {
     std::string str = removeSpaces(input);
-    return parseRelation(str);
+    std::unique_ptr<Expression> result = parseRelation(str);
+    if (!str.empty()) {
+      std::cerr << "WARNING: Not parsed " << str << std::endl;
+    }
+    return result;
   }
 
 private:
@@ -193,7 +287,9 @@ private:
 
   static std::unique_ptr<Expression> parsePrimary(std::string &str) {
     int i = 0;
-    if (str.size() == i) {
+    if (str.empty()) {
+      std::cerr << "Parsing error: Expected primary, but input is empty"
+                << std::endl;
       return nullptr;
     }
     char ch = str[i];
@@ -213,15 +309,20 @@ private:
           ch = str[i];
         }
       }
-      str.erase(0, i);
       if (isNegative) {
         if (i == 1) {
+          std::cerr
+              << "Parsing error: expected negative integer, found only sign \""
+              << str << "\"" << std::endl;
           return nullptr;
         }
         integer *= -1;
       } else if (i == 0) {
+        std::cerr << "Parsing error: Expected primary, found \"" << str << "\""
+                  << std::endl;
         return nullptr;
       }
+      str.erase(0, i);
       return std::make_unique<Integer>(integer);
     } else if ('(' == ch) {
       int brackets_counter = 1;
@@ -244,11 +345,15 @@ private:
         }
       }
       if (brackets_counter != 0) {
+        std::cerr << "Parsing error: no closed bracket \"" << str << "\""
+                  << std::endl;
         return nullptr;
       }
       str.erase(0, i + 1);
       return std::make_unique<Parenthesized>(parseRelation(expression));
     }
+    std::cerr << "Parsing error: expected primary, found \"" << str << "\""
+              << std::endl;
     return nullptr;
   }
 };
@@ -256,9 +361,14 @@ private:
 int main() {
   std::string input;
   std::getline(std::cin, input);
-  std::unique_ptr<Expression> expressionTree = Parser::parse(input);
-  std::cout << "Expression: " << expressionTree->toString() << std::endl;
-  int result = expressionTree->calculate();
-  std::cout << "Result: " << result << std::endl;
+  try {
+    std::unique_ptr<Expression> expressionTree = Parser::parse(input);
+    std::string expressionStr = expressionTree->toString();
+    std::cout << "Expression: " << expressionStr << std::endl;
+    int result = expressionTree->calculate();
+    std::cout << "Result: " << result << std::endl;
+  } catch (const std::runtime_error &e) {
+    std::cerr << "ERROR: " << e.what() << std::endl;
+  }
   return 0;
 }
