@@ -9,7 +9,7 @@ public:
 };
 
 class Binary : public Expression {
-  std::string toString() { return "Binary"; };
+  std::string toString() override { return "Binary"; };
 
 protected:
   std::unique_ptr<Expression> left;
@@ -17,7 +17,7 @@ protected:
 };
 
 class Relation : public Binary {
-  std::string toString() { return "Relation"; };
+  std::string toString() override { return "Relation"; };
 };
 
 class Less : public Relation {
@@ -105,7 +105,7 @@ public:
 };
 
 class Term : public Binary {
-  std::string toString() { return "Term"; };
+  std::string toString() override { return "Term"; };
 };
 
 class Plus : public Term {
